@@ -50,18 +50,19 @@ int instr_cmp(Instruction *a, Instruction *b) {
     return 0;
 }
 
-void analize_frequency(FILE *f, ByteFile *bf) {
+void eval_frequency(FILE *f, ByteFile *bf) {
     struct hashtable *ht = create_hashtable(10000, (unsigned int (*)(void *)) hash_instruction, (int (*)(void *, void *)) instr_cmp);
     const char *ip = bf->code_ptr;
     int entries_count = 0;
     while (ip < bf->code_ptr + bf->bytecode_size) {
         const char *new_ip = decode_instruction(0, bf, ip);
         Instruction *instr = malloc(sizeof(Instruction));
-        instr->instruction_pointer = ip;
-        instr->length = new_ip - ip;
         if (instr == NULL) {
             failure("Could not init instruction");
+            return;
         }
+        instr->instruction_pointer = ip;
+        instr->length = new_ip - ip;
 
         ip = new_ip;
         int *count = count_instruction(ht, instr);
@@ -103,7 +104,7 @@ void analize_frequency(FILE *f, ByteFile *bf) {
 
 int main(int argc, char *argv[]) {
     ByteFile *bf = read_file(argv[1]);
-    analize_frequency(stdout, bf);
+    eval_frequency(stdout, bf);
     free(bf);
     return 0;
 }
